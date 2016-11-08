@@ -2,13 +2,6 @@ package com.company;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.sun.org.apache.xml.internal.serialize.OutputFormat.Defaults.Encoding;
 
 public class Main {
 
@@ -41,7 +34,7 @@ public class Main {
 
             out.flush();
             String userInput = "";
-            //userInput = stdIn.readLine();
+
             while ((userInput=stdIn.readLine())!=null) {
                 out.println(userInput);
                 for (int i = 0; i < 9; i++) {
@@ -50,26 +43,57 @@ public class Main {
 
                 String json = in.readLine();
 
-                String strRings = "\"rings\":[[[";
-                List<Double> dataMeters = new ArrayList<>();
+                String strRingsStart = "\"rings\":[[[";
+                String strRingsEnd = "]]]";
 
-               int index =0;
+                String startTime = "START_H\":\"";
+                String endTime = "\",\"CREATEDBY\"";
+
+                String startLocation = "LOCATION\":";
+                String endLocation=",\"ACTIVESTATUS\"";
+
+               int indexRings =0;
+                int indexStartTime=0;
+
+                int indexLocation = 0;
+
+
                 while (true){
-                    index=json.indexOf(strRings);
-                    int lastIndex = json.indexOf("]]]");
-                    if (index==-1 ){
+                    indexLocation=json.indexOf(startLocation);
+                    indexStartTime=json.indexOf(startTime);
+
+                    indexRings=json.indexOf(strRingsStart);
+                    int lastIndex = json.indexOf(strRingsEnd);
+                    int indexLocationEnd =json.indexOf(endLocation);
+                    int indexTime=json.indexOf(endTime);
+                    if (indexRings==-1 ||indexLocation==-1||indexTime==-1){
 
                         break;
                     }
-                        String substring = json.substring(index + 11, lastIndex);
-                        json = json.substring(lastIndex + 3);
-                        index = lastIndex + 3;
-                        System.out.println(substring);
+                    //location-It's ok
+                    String location = json.substring(indexLocation+startLocation.length(),indexLocationEnd);
+                    System.out.println(location);
+                    //time must delete some strings
+                    String time = json.substring(indexStartTime+startTime.length(), indexTime)
+                            .replace("\",\"START_M\":\"",":")
+                            .replace("\",\"END_H\":\""," End:")
+                            .replace("\",\"END_M\":\"",":");
+                    //time.replace("\",\"START_M\":\"",":");
+
+                    System.out.println("Start: "+time);
+                    //rings
+                        String substring = json.substring(indexRings + strRingsStart.length(), lastIndex).replace("],["," ");
+
+                    String[] twoDimentionalMeters = substring.split(" ");
+
+                        json = json.substring(lastIndex + strRingsEnd.length());
+                        indexRings = lastIndex + strRingsEnd.length();
+                        System.out.println(twoDimentionalMeters.toString());
 
                 }
 //TODO: Replace all '[',']' and split by ','
                 //TODO: Parse to Double then convert by formula (ASK google) and then print
-                System.out.println(json);
+
 
 
             }
@@ -77,5 +101,14 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    private static void  getSubstring(int indexRings, String strRingsStart, String strRingsEnd, String json) {
+        int index = json.indexOf(strRingsStart);
+        int lastIndex = json.indexOf(strRingsEnd);
+       String substring =json.substring(indexRings + strRingsStart.length(), lastIndex);
+        System.out.println(substring);
+    }
+
+
 
 }
