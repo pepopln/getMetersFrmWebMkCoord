@@ -1,7 +1,13 @@
 package com.company;
 
+
+
+
+import org.json.*;
+
 import java.io.*;
 import java.net.Socket;
+
 
 public class Main {
 
@@ -43,63 +49,65 @@ public class Main {
 
                 String json = in.readLine();
 
-                String strRingsStart = "\"rings\":[[[";
-                String strRingsEnd = "]]]";
 
-                String startTime = "START_H\":\"";
-                String endTime = "\",\"CREATEDBY\"";
-
-                String startLocation = "LOCATION\":";
-                String endLocation=",\"ACTIVESTATUS\"";
-
-               int indexRings =0;
-                int indexStartTime=0;
-
-                int indexLocation = 0;
+//                JSONArray jsonArrayFeatures=new JSONArray(json);
+                JSONObject jsonObject = new JSONObject(json);
 
 
-                while (true){
-                    indexLocation=json.indexOf(startLocation);
-                    indexStartTime=json.indexOf(startTime);
+                JSONArray jsonArrayFeatures=jsonObject.getJSONArray("features");
 
-                    indexRings=json.indexOf(strRingsStart);
-                    int lastIndex = json.indexOf(strRingsEnd);
-                    int indexLocationEnd =json.indexOf(endLocation);
-                    int indexTime=json.indexOf(endTime);
-                    if (indexRings==-1 ||indexLocation==-1||indexTime==-1){
+                for (int i = 0; i < jsonArrayFeatures.length(); i++) {
+//                    System.out.println(jsonArrayFeatures.get(i));
+                    JSONObject getI = (JSONObject) jsonArrayFeatures.get(i);
+                    JSONObject jsonObjectAttributes = (JSONObject) getI.get("attributes");
+                    //JSONObject object = jsonArrayLocation.getJSONObject("LOCATION");
+                    System.out.println(jsonObjectAttributes.get("ALERTTYPE"));
+                    System.out.println(jsonObjectAttributes.get("DESCRIPTION"));
+                    System.out.println(jsonObjectAttributes.get("LOCATION"));
+                    System.out.println("START: "+jsonObjectAttributes.get("START_H")+":"+jsonObjectAttributes.get("START_M")+" END: "+jsonObjectAttributes.get("END_H")+":"+jsonObjectAttributes.get("END_M"));
+                    JSONObject jsonObjectGeometry = (JSONObject) getI.get("geometry");
+                    JSONArray jsonArrayRings = jsonObjectGeometry.getJSONArray("rings");
+                    JSONArray jsonArrayRings0= (JSONArray) jsonArrayRings.get(0);
 
-                        break;
+                    for (int j = 0; j < jsonArrayRings0.length()-1; j++) {
+                        JSONArray jsonArrayRings1 = (JSONArray) jsonArrayRings0.get(j);
+                        System.out.print(jsonArrayRings1.toString().toString());
                     }
-                    //location-It's ok
-                    String location = json.substring(indexLocation+startLocation.length(),indexLocationEnd);
-                    System.out.println(location);
-                    //time must delete some strings
-                    String time = json.substring(indexStartTime+startTime.length(), indexTime)
-                            .replace("\",\"START_M\":\"",":")
-                            .replace("\",\"END_H\":\""," End:")
-                            .replace("\",\"END_M\":\"",":");
-                    //time.replace("\",\"START_M\":\"",":");
+                    System.out.println(jsonArrayRings0.toString());
 
-                    System.out.println("Start: "+time);
-                    //rings
-                        String substring = json.substring(indexRings + strRingsStart.length(), lastIndex).replace("],["," ");
+                    System.out.println();
 
-                    String[] twoDimentionalMeters = substring.split(" ");
 
-                        json = json.substring(lastIndex + strRingsEnd.length());
-                        indexRings = lastIndex + strRingsEnd.length();
-                        System.out.println(twoDimentionalMeters.toString());
+
+                }
+                JSONObject get0 = (JSONObject) jsonArrayFeatures.get(0);
+
+                //JSONArray jsonArray0 = get0.getJSONArray("attributes");
+                System.out.println();
+
+                System.out.println(jsonObject.toString());
+                System.out.println(get0);
+
+
+//must make object when starts with { and array when starts with [ and make fun :)
+
 
                 }
 //TODO: Replace all '[',']' and split by ','
                 //TODO: Parse to Double then convert by formula (ASK google) and then print
 
 
-
-            }
+            } catch (JSONException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+
+    private static double MetersToDecimalDegrees(Double degrees) {
+        return 0;
     }
 
     private static void  getSubstring(int indexRings, String strRingsStart, String strRingsEnd, String json) {
@@ -108,7 +116,6 @@ public class Main {
        String substring =json.substring(indexRings + strRingsStart.length(), lastIndex);
         System.out.println(substring);
     }
-
 
 
 }
