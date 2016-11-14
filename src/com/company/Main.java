@@ -4,10 +4,7 @@ package com.company;
 
 
 import org.json.*;
-import uk.me.jstott.jcoord.LatLng;
-import uk.me.jstott.jcoord.OSRef;
 
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
